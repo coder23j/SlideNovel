@@ -1,0 +1,47 @@
+# .github/workflows/daily-slide.yaml
+name: Daily SlideNovel Generation
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 每天 UTC 时间 02:00 运行（可调整）
+  workflow_dispatch:     # 允许手动触发
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install openai
+
+      - name: Run chapter generator
+        env:
+          WINDOW_SIZE: ${{ vars.WINDOW_SIZE || '3' }}
+          MAX_CHAPTERS: ${{ vars.MAX_CHAPTERS || '100' }}
+          MAX_LENGTH_PER_CHAPTER: ${{ vars.MAX_LENGTH_PER_CHAPTER || '2000' }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_API_BASE_URL: ${{ vars.LLM_API_BASE_URL || 'https://api.openai.com/v1' }}
+          MODEL_NAME: ${{ vars.MODEL_NAME || 'gpt-4o' }}
+        run: python generate_next_chapter.py
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add source/_posts/
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: auto-generate next chapter [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi
