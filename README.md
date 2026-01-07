@@ -43,3 +43,67 @@
    ---
 
    那一夜的雨，下得比往常都急……
+   ```
+
+5. **手动触发一次**  
+   Actions → Daily SlideNovel Generation → Run workflow  
+   看到绿色  ✔ 后，`2.md` 就会出现在 `source/_posts/`。
+
+6. **（可选）生成静态站**  
+   ```bash
+   npm install hexo-cli -g
+   npm install
+   hexo generate   # public/ 目录即整站
+   hexo deploy     # 若已配 _config.yml 的 deploy 字段
+   ```
+
+---
+
+##  📁 项目结构
+
+```
+SlideNovel/
+├── .github/workflows/daily-slide.yaml   # 定时任务
+├── generate_next_chapter.py             # 核心 Python 脚本
+├── source/_posts/
+│   ├── 1.md
+│   ├── 2.md
+│   └── …                                # 自动递增
+├── _config.yml                          # Hexo 配置
+└── themes/                              # Hexo 主题
+```
+
+> 非数字命名的 `.md`（如 `hello-world.md`）会被脚本自动忽略，放心保留。
+
+---
+
+##  ️ 本地调试
+
+```bash
+export LLM_API_KEY="sk-xxx"
+export WINDOW_SIZE=3
+export MAX_CHAPTERS=100
+export MAX_LENGTH_PER_CHAPTER=2000
+export MODEL_NAME="gpt-4o-mini"
+export LLM_API_BASE_URL="https://api.openai.com/v1"
+
+python generate_next_chapter.py
+```
+
+---
+
+##  📄 License
+
+MIT © SlideNovel Contributors  
+（Fork 自 hexo-starter，同样 MIT）
+
+---
+
+##   后续玩法
+
+- 把 `public/` 部署到 GitHub Pages → 免费在线阅读  
+- 接入 GitHub Issues / Discussions 让读者投票剧情走向  
+- 改用多模态模型，让 AI 同时插图  
+- 把窗口大小调成 1，体验「接龙式」荒诞文风  
+
+**Happy Writing!** 让 AI 陪你把故事一直写下去  ️
